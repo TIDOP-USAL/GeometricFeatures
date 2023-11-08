@@ -37,9 +37,14 @@ def getNeighborhoodData(neighborhood: np.array) -> np.array:
     :return: Matrix with rows X, Y and Z where each row corresponds to a vector of the components x, y, z of each point respectively
     """
     # Separate x, y and z of each neighborhood in 3 different vectors
-    X: list[float] = neighborhood[0]
-    Y: list[float] = neighborhood[1]
-    Z: list[float] = neighborhood[2]
+    X: list[float] = []
+    Y: list[float] = []
+    Z: list[float] = []
+
+    for neighbor in neighborhood:
+        X.append(neighbor[0])
+        Y.append(neighbor[1])
+        Z.append(neighbor[2])
 
     # Return matrix
     return np.array([X, Y, Z])
@@ -141,8 +146,7 @@ def calculateFeatures(cloudPath: str, radius: float, bias: bool = False) -> None
 if __name__ == "__main__":
 
     # Parameters
-    r: float = 0.5
-    b: bool = False
-    path: str = 'c:/Users/EquipoTidop/Desktop/box.las'
+    r: float = 5
+    path: str = 'c:/Users/EquipoTidop/Desktop/bunny.las'
 
-    calculateFeatures(path, radius=r, bias=b)
+    calculateFeatures(path, radius=r)
