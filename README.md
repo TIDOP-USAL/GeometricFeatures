@@ -52,3 +52,11 @@ Thus, the following geometric features are defined:
 **Sum of eigenvalues**
 
 ![](img/sumEigenvalues.png)
+
+**Eigenentropy**
+
+![](img/eigenentropy.png)
+
+**PCA2**
+
+![](img/pca2.png)
