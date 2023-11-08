@@ -44,5 +44,11 @@ Thus, the following geometric features are defined:
 * Verticality: $1 - \left | n_{z} \right |$
 
 ## Visualization
+
+**Omnivariance**
+
 ![](img/omnivariance.png)
+
+**Sum of eigenvalues**
+
 ![](img/sumEigenvalues.png)
