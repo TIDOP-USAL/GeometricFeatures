@@ -29,7 +29,7 @@ class GeometricFeatures:
         product: float = 1
         for eigenvalue in eigenvalues:
             product *= eigenvalue
-        return math.pow(product, 1.0 / 3.0)
+        return product * math.pow(abs(product), 1 / 3) / abs(product)
 
     @staticmethod
     def eigenentropy(eigenvalues: np.array) -> float:
@@ -39,6 +39,8 @@ class GeometricFeatures:
         """
         sum: float = 0
         for eigenvalue in eigenvalues:
+            if eigenvalue <= 0:  # ln(x) = -inf, x <= 0. As we have -sum, -(-inf) = inf
+                return float('inf')
             sum += eigenvalue * ln(eigenvalue)
         return -sum
 

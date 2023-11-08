@@ -5,10 +5,30 @@ Alberto Morcillo Sanz - TIDOP
 
 import numpy as np
 from numpy import linalg as LA
+
 from scipy.spatial import KDTree
+
 import laspy
 
 from features import GeometricFeatures
+
+SCALAR_FIELDS = ['Sum_of_eigenvalues', 'Omnivariance', 'Eigenentropy',
+                 'Anisotropy', 'Linearity', 'Planarity', 'Sphericity',
+                 'PCA1', 'PCA2', 'Surface_variation', 'Verticality'
+                 ]
+
+def addScalarFields(las: laspy.LasData, radius: float) -> None:
+    """
+    :param las: LAS file
+    :param radius: Neighborhood radius
+    :return:
+    """
+    for scalarField in SCALAR_FIELDS:
+
+        las.add_extra_dim(laspy.ExtraBytesParams(
+            name=scalarField,
+            type=np.float64,
+        ))
 
 
 def getNeighborhoodData(neighborhood: np.array) -> np.array:
@@ -25,10 +45,11 @@ def getNeighborhoodData(neighborhood: np.array) -> np.array:
     return np.array([X, Y, Z])
 
 
-def eigen(point: list[float], kdtree: KDTree, radius: float, BIAS=False):
+def eigen(point: list[float], kdtree: KDTree, pointcloud: np.array, radius: float, BIAS=False):
     """
     :param point: Point at which the neighborhood will be calculated
-    :param kdtree: KDTree of the pointcloud
+    :param kdtree: KDTree of the pointcloud previously calculated
+    :param pointcloud: The point cloud
     :param radius: Radius of the neighborhood of point
     :param BIAS: BIAS = True means computing the population covariance matrix and BIAS = False, the sample covariance matrix
     :return: Eigenvalues and eigenvectors of the covariance matrix of the neighborhood of a radius 'radius' of the point 'point'
@@ -45,33 +66,83 @@ def eigen(point: list[float], kdtree: KDTree, radius: float, BIAS=False):
     return LA.eig(covarianceMatrix)
 
 
+def calculateFeatures(cloudPath: str, radius: float, bias: bool = False) -> None:
+    """
+    :param cloudPath:
+    :param radius:
+    :param bias:
+    :return:
+    """
+    # Load point cloud
+    las = laspy.read(cloudPath)
+    addScalarFields(las, radius)
+    print(list(las.point_format.dimension_names))
+
+    # Build kdtree
+    pointcloud = np.array(las.xyz)
+    T = KDTree(pointcloud)
+
+    # Calculate the geometric features of each point in a neighborhood of radius r
+    print('Calculating geometric features...')
+    pointIndex: int = 0
+    for p in pointcloud:
+
+        # Eigenvalues and eigenvectors of the covariance matrix of the neighborhood of p
+        eigenvalues, eigenvectors = eigen(p, T, pointcloud, r, bias)
+
+        # Sum of eigenvalues
+        sumofeigenvalues: float = GeometricFeatures.sumOfEigenValues(eigenvalues)
+        las[SCALAR_FIELDS[0]][pointIndex] = sumofeigenvalues
+
+        # Omnivariance
+        omnivariance: float = GeometricFeatures.omnivariance(eigenvalues)
+        las[SCALAR_FIELDS[1]][pointIndex] = omnivariance
+
+        # Eigenentropy
+        eigenentropy: float = GeometricFeatures.eigenentropy(eigenvalues)
+        las[SCALAR_FIELDS[2]][pointIndex] = eigenentropy
+
+        # Anisotropy
+        anisotropy: float = GeometricFeatures.anisotropy(eigenvalues)
+        las[SCALAR_FIELDS[3]][pointIndex] = anisotropy
+
+        # Linearity
+        linearity: float = GeometricFeatures.linearity(eigenvalues)
+        las[SCALAR_FIELDS[4]][pointIndex] = linearity
+
+        # Planarity
+        planarity: float = GeometricFeatures.planarity(eigenvalues)
+        las[SCALAR_FIELDS[5]][pointIndex] = planarity
+
+        # Sphericity
+        sphericity: float = GeometricFeatures.sphericity(eigenvalues)
+        las[SCALAR_FIELDS[6]][pointIndex] = sphericity
+
+        # PCA1
+        PCA1: float = GeometricFeatures.PCA1(eigenvalues)
+        las[SCALAR_FIELDS[7]][pointIndex] = PCA1
+
+        # PCA2
+        PCA2: float = GeometricFeatures.PCA2(eigenvalues)
+        las[SCALAR_FIELDS[8]][pointIndex] = PCA2
+
+        # Surface variation
+        surfaceVariation: float = GeometricFeatures.surfaceVariation(eigenvalues)
+        las[SCALAR_FIELDS[9]][pointIndex] = surfaceVariation
+
+        # Verticality (check if the point cloud has normals)
+        pointIndex += 1
+
+    # Save point cloud
+    print('Saving point cloud...')
+    outputPath: str = cloudPath.split('.')[0] + '-new.las'
+    las.write(outputPath)
+
 if __name__ == "__main__":
 
     # Parameters
     r: float = 0.5
-    bias: bool = False
+    b: bool = False
+    path: str = 'c:/Users/EquipoTidop/Desktop/box.las'
 
-    # Load point cloud
-    las = laspy.read('c:/Users/EquipoTidop/Desktop/box.las')
-    pointcloud = np.array(las.xyz)
-
-    # Build KDTree
-    T = KDTree(pointcloud)
-
-    # Calculate the geometric features of each point in a neighborhood of radius r
-    for p in pointcloud:
-
-        # Eigenvalues and eigenvectors of the covariance matrix of the neighborhood of p
-        eigenvalues, eigenvectors = eigen(p, T, r, bias)
-
-        print('Geometric features of the point', p)
-
-        # Omnivariance
-        eigenentropy: float = GeometricFeatures.eigenentropy(eigenvalues)
-        print('Eigenentropy of the point:', eigenentropy)
-
-        # Planarity
-        planarity: float = GeometricFeatures.planarity(eigenvalues)
-        print('Planarity of the point:', planarity)
-
-        print(' ')
+    calculateFeatures(path, radius=r, bias=b)
