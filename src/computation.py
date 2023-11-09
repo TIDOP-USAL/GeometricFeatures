@@ -147,4 +147,6 @@ def calculateFeatures(cloudPath: str, radius: float, bias: bool = False, percent
     # Save point cloud
     outputPath: str = cloudPath.split('.')[0] + '-new.las'
     las.write(outputPath)
-    percentageCallback(100)
+
+    if percentageCallback is not None:
+        percentageCallback(100)
