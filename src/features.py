@@ -5,10 +5,12 @@ Alberto Morcillo Sanz - TIDOP
 
 import numpy as np
 from numpy import log as ln
+
 import math
+import sys
 
 def sign(n: float) -> float:
-    return n / abs(n)
+    return n / abs(n) if n != 0 else 0
 
 class GeometricFeatures:
     """
@@ -22,10 +24,7 @@ class GeometricFeatures:
         :param eigenvalues: Eigenvalues of the covariance matrix of a neighborhood
         :return: $\sum_{i} \lambda_{i}$
         """
-        sum: float = 0
-        for eigenvalue in eigenvalues:
-            sum += eigenvalue
-        return sum
+        return eigenvalues[0] + eigenvalues[1] + eigenvalues[2]
 
     @staticmethod
     def omnivariance(eigenvalues: np.array) -> float:
@@ -33,10 +32,7 @@ class GeometricFeatures:
         :param eigenvalues: Eigenvalues of the covariance matrix of a neighborhood
         :return: $\left( \prod_{i} \lambda_{i} \right)^\frac{1}{3}$
         """
-        product: float = 1
-        for eigenvalue in eigenvalues:
-            product *= eigenvalue
-        return product * math.pow(abs(product), 1 / 3) / abs(product) if product != 0 else 0
+        return math.pow(eigenvalues[0] * eigenvalues[1] * eigenvalues[2], 1.0 / 3.0)
 
     @staticmethod
     def eigenentropy(eigenvalues: np.array) -> float:
@@ -57,7 +53,7 @@ class GeometricFeatures:
         :param eigenvalues: Eigenvalues of the covariance matrix of a neighborhood
         :return: $\frac{\lambda_{1} - \lambda_{3}}{\lambda_{1}}$
         """
-        return (eigenvalues[0] - eigenvalues[2]) / eigenvalues[0] if eigenvalues[0] != 0 else sign(eigenvalues[0] - eigenvalues[2]) * float('inf')
+        return (eigenvalues[0] - eigenvalues[2]) / eigenvalues[0] if abs(eigenvalues[0]) > sys.float_info.epsilon else float('NaN')
 
     @staticmethod
     def linearity(eigenvalues: np.array) -> float:
@@ -65,7 +61,7 @@ class GeometricFeatures:
         :param eigenvalues: Eigenvalues of the covariance matrix of a neighborhood
         :return: $\frac{\lambda_{1} - \lambda_{2}}{\lambda_{1}}$
         """
-        return (eigenvalues[0] - eigenvalues[1]) / eigenvalues[0] if eigenvalues[0] != 0 else sign(eigenvalues[0] - eigenvalues[1]) * float('inf')
+        return (eigenvalues[0] - eigenvalues[1]) / eigenvalues[0] if abs(eigenvalues[0]) > sys.float_info.epsilon else float('NaN')
 
     @staticmethod
     def planarity(eigenvalues: np.array) -> float:
@@ -73,7 +69,7 @@ class GeometricFeatures:
         :param eigenvalues: Eigenvalues of the covariance matrix of a neighborhood
         :return: $\frac{\lambda_{2} - \lambda_{3}}{\lambda_{1}}$
         """
-        return (eigenvalues[1] - eigenvalues[2]) / eigenvalues[0] if eigenvalues[0] != 0 else sign(eigenvalues[1] - eigenvalues[2]) * float('inf')
+        return (eigenvalues[1] - eigenvalues[2]) / eigenvalues[0] if abs(eigenvalues[0]) > sys.float_info.epsilon else float('NaN')
 
     @staticmethod
     def sphericity(eigenvalues: np.array) -> float:
@@ -81,7 +77,7 @@ class GeometricFeatures:
         :param eigenvalues: Eigenvalues of the covariance matrix of a neighborhood
         :return: $\frac{\lambda_{3}}{\lambda_{1}}$
         """
-        return eigenvalues[2] / eigenvalues[0] if eigenvalues[0] != 0 else sign(eigenvalues[2]) * float('inf')
+        return eigenvalues[2] / eigenvalues[0] if abs(eigenvalues[0]) > sys.float_info.epsilon else float('NaN')
 
     @staticmethod
     def PCA1(eigenvalues: np.array) -> float:
@@ -90,7 +86,7 @@ class GeometricFeatures:
         :return: $\lambda_{1}\left ( \sum _{i} \lambda_{i} \right )^{-1}$
         """
         eigenvaluesSum = GeometricFeatures.sumOfEigenValues(eigenvalues)
-        return eigenvalues[0] / eigenvaluesSum if eigenvaluesSum != 0 else sign(eigenvalues[0]) * float('inf')
+        return eigenvalues[0] / eigenvaluesSum if abs(eigenvaluesSum) > sys.float_info.epsilon else float('NaN')
 
     @staticmethod
     def PCA2(eigenvalues: np.array) -> float:
@@ -99,7 +95,7 @@ class GeometricFeatures:
         :return: $\lambda_{2}\left ( \sum _{i} \lambda_{i} \right )^{-1}$
         """
         eigenvaluesSum = GeometricFeatures.sumOfEigenValues(eigenvalues)
-        return eigenvalues[1] / eigenvaluesSum if eigenvaluesSum != 0 else eigenvalues[1] * float('inf')
+        return eigenvalues[1] / eigenvaluesSum if abs(eigenvaluesSum) > sys.float_info.epsilon else float('NaN')
 
     @staticmethod
     def surfaceVariation(eigenvalues: np.array) -> float:
@@ -108,12 +104,16 @@ class GeometricFeatures:
         :return: $\lambda_{3}\left ( \sum _{i} \lambda_{i} \right )^{-1}$
         """
         eigenvaluesSum = GeometricFeatures.sumOfEigenValues(eigenvalues)
-        return eigenvalues[2] / eigenvaluesSum if eigenvaluesSum != 0 else eigenvalues[2] * float('inf')
+        return eigenvalues[2] / eigenvaluesSum if abs(eigenvaluesSum) > sys.float_info.epsilon else float('NaN')
 
     @staticmethod
-    def verticality(Nz: float) -> float:
+    def verticality(eigenvectors: np.array) -> float:
         """
-        :param Nz: z component of the normal vector
+        :param eigenvectors: Eigenvectors associated to the eigenvalues of the covariance matrix of a neighborhood
         :return: $1 - \left | n_{z} \right |$
         """
-        return 1 - abs(Nz)
+        z = [0, 0, 1]
+        e3 = eigenvectors[2]
+
+        return 1.0 - math.fabs(np.dot(z, e3))
+

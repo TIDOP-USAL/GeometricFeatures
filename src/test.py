@@ -20,4 +20,3 @@ if __name__ == "__main__":
 
     # Compute geometric features
     computation.calculateFeatures(path, radius=r, percentageCallback=showPercentage)
-

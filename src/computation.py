@@ -17,6 +17,7 @@ SCALAR_FIELDS = ['Sum_of_eigenvalues', 'Omnivariance', 'Eigenentropy',
                  'PCA1', 'PCA2', 'Surface_variation', 'Verticality'
                  ]
 
+
 def addScalarFields(las: laspy.LasData, radius: float) -> None:
     """
     :param las: LAS file
@@ -24,7 +25,6 @@ def addScalarFields(las: laspy.LasData, radius: float) -> None:
     :return:
     """
     for scalarField in SCALAR_FIELDS:
-
         las.add_extra_dim(laspy.ExtraBytesParams(
             name=scalarField,
             type=np.float64,
@@ -63,6 +63,9 @@ def eigen(point: list[float], kdtree: KDTree, pointcloud: np.array, radius: floa
     idx = kdtree.query_ball_point(point, r=radius)
     neighborhood: np.array = pointcloud[idx]
 
+    if len(neighborhood) < 2:
+        raise RuntimeError()
+
     # Compute covariance matrix of the neighborhood
     data = getNeighborhoodData(neighborhood)
     covarianceMatrix = np.cov(data, bias=BIAS)
@@ -94,7 +97,11 @@ def calculateFeatures(cloudPath: str, radius: float, bias: bool = False, percent
     for p in pointcloud:
 
         # Eigenvalues and eigenvectors of the covariance matrix of the neighborhood of p
-        eigenvalues, eigenvectors = eigen(p, T, pointcloud, radius, bias)
+        try:
+            eigenvalues, eigenvectors = eigen(p, T, pointcloud, radius, bias)
+        except RuntimeError:
+            print("Couldn't compute covariance matrix in neighborhoods smaller than 2 points. Consider a bigger radius")
+            continue
 
         # Sum of eigenvalues
         sumofeigenvalues: float = GeometricFeatures.sumOfEigenValues(eigenvalues)
@@ -136,7 +143,10 @@ def calculateFeatures(cloudPath: str, radius: float, bias: bool = False, percent
         surfaceVariation: float = GeometricFeatures.surfaceVariation(eigenvalues)
         las[SCALAR_FIELDS[9]][pointIndex] = surfaceVariation
 
-        # Verticality (check if the point cloud has normals)
+        # Verticality
+        verticality: float = GeometricFeatures.verticality(eigenvectors)
+        las[SCALAR_FIELDS[10]][pointIndex] = verticality
+
         pointIndex += 1
 
         # Compute optional percentage
