@@ -71,29 +71,30 @@ def eigen(point: list[float], kdtree: KDTree, pointcloud: np.array, radius: floa
     return LA.eig(covarianceMatrix)
 
 
-def calculateFeatures(cloudPath: str, radius: float, bias: bool = False) -> None:
+def calculateFeatures(cloudPath: str, radius: float, bias: bool = False, percentageCallback=None) -> None:
     """
-    :param cloudPath:
-    :param radius:
-    :param bias:
-    :return:
+    :param cloudPath: Path of the point cloud
+    :param radius: Neighborhood radius
+    :param bias: Set bias to false to compute the sample covariance or set it to true to compute the population covariance
+    :param percentageCallback: [OPTIONAL] calls a callback for dealing with the percentage of the computation
+    :return: None
     """
     # Load point cloud
     las = laspy.read(cloudPath)
     addScalarFields(las, radius)
-    print(list(las.point_format.dimension_names))
+
+    numPoints: int = len(las.points)
 
     # Build kdtree
     pointcloud = np.array(las.xyz)
     T = KDTree(pointcloud)
 
     # Calculate the geometric features of each point in a neighborhood of radius r
-    print('Calculating geometric features...')
     pointIndex: int = 0
     for p in pointcloud:
 
         # Eigenvalues and eigenvectors of the covariance matrix of the neighborhood of p
-        eigenvalues, eigenvectors = eigen(p, T, pointcloud, r, bias)
+        eigenvalues, eigenvectors = eigen(p, T, pointcloud, radius, bias)
 
         # Sum of eigenvalues
         sumofeigenvalues: float = GeometricFeatures.sumOfEigenValues(eigenvalues)
@@ -138,15 +139,12 @@ def calculateFeatures(cloudPath: str, radius: float, bias: bool = False) -> None
         # Verticality (check if the point cloud has normals)
         pointIndex += 1
 
+        # Compute optional percentage
+        if percentageCallback is not None:
+            percentage = max(int(100 * float(pointIndex) / numPoints) - 1, 0)
+            percentageCallback(percentage)
+
     # Save point cloud
-    print('Saving point cloud...')
     outputPath: str = cloudPath.split('.')[0] + '-new.las'
     las.write(outputPath)
-
-if __name__ == "__main__":
-
-    # Parameters
-    r: float = 5
-    path: str = 'c:/Users/EquipoTidop/Desktop/bunny.las'
-
-    calculateFeatures(path, radius=r)
+    percentageCallback(100)

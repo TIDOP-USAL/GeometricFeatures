@@ -1,3 +1,8 @@
+"""
+Compute geometric features of a 3D point cloud from a .LAS file
+Alberto Morcillo Sanz - TIDOP
+"""
+
 import numpy as np
 from numpy import log as ln
 import math
