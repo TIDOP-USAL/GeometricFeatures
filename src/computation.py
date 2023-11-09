@@ -19,10 +19,9 @@ SCALAR_FIELDS: list[str] = ['Sum_of_eigenvalues', 'Omnivariance', 'Eigenentropy'
 
 MIN_NEIGHBORHOOD: int = 3
 
-def addScalarFields(las: laspy.LasData, radius: float) -> None:
+def addScalarFields(las: laspy.LasData) -> None:
     """
     :param las: LAS file
-    :param radius: Neighborhood radius
     :return:
     """
     for scalarField in SCALAR_FIELDS:
@@ -30,7 +29,6 @@ def addScalarFields(las: laspy.LasData, radius: float) -> None:
             name=scalarField,
             type=np.float64,
         ))
-
 
 def getNeighborhoodData(neighborhood: np.array) -> np.array:
     """
@@ -50,8 +48,7 @@ def getNeighborhoodData(neighborhood: np.array) -> np.array:
     # Return matrix
     return np.array([X, Y, Z])
 
-
-def eigen(point: list[float], kdtree: KDTree, pointcloud: np.array, radius: float, BIAS=False):
+def eigen(point: list[float], kdtree: KDTree, pointcloud: np.array, radius: float, BIAS=False) -> tuple[any, any]:
     """
     :param point: Point at which the neighborhood will be calculated
     :param kdtree: KDTree of the pointcloud previously calculated
@@ -65,7 +62,7 @@ def eigen(point: list[float], kdtree: KDTree, pointcloud: np.array, radius: floa
     neighborhood: np.array = pointcloud[idx]
 
     if len(neighborhood) < MIN_NEIGHBORHOOD:
-        raise RuntimeError()
+        return None, None
 
     # Compute covariance matrix of the neighborhood
     data = getNeighborhoodData(neighborhood)
@@ -82,49 +79,51 @@ def computeFeatures(las: laspy.LasData, eigenvalues: np.array, eigenvectors: np.
     :param idx: Scalarfield index
     :return:
     """
+    nan: bool = eigenvalues is None or eigenvectors is None
+
     # Sum of eigenvalues
     sumofeigenvalues: float = GeometricFeatures.sumOfEigenValues(eigenvalues)
-    las[SCALAR_FIELDS[0]][idx] = sumofeigenvalues
+    las[SCALAR_FIELDS[0]][idx] = sumofeigenvalues if not nan else float('NaN')
 
     # Omnivariance
     omnivariance: float = GeometricFeatures.omnivariance(eigenvalues)
-    las[SCALAR_FIELDS[1]][idx] = omnivariance
+    las[SCALAR_FIELDS[1]][idx] = omnivariance if not nan else float('NaN')
 
     # Eigenentropy
     eigenentropy: float = GeometricFeatures.eigenentropy(eigenvalues)
-    las[SCALAR_FIELDS[2]][idx] = eigenentropy
+    las[SCALAR_FIELDS[2]][idx] = eigenentropy if not nan else float('NaN')
 
     # Anisotropy
     anisotropy: float = GeometricFeatures.anisotropy(eigenvalues)
-    las[SCALAR_FIELDS[3]][idx] = anisotropy
+    las[SCALAR_FIELDS[3]][idx] = anisotropy if not nan else float('NaN')
 
     # Linearity
     linearity: float = GeometricFeatures.linearity(eigenvalues)
-    las[SCALAR_FIELDS[4]][idx] = linearity
+    las[SCALAR_FIELDS[4]][idx] = linearity if not nan else float('NaN')
 
     # Planarity
     planarity: float = GeometricFeatures.planarity(eigenvalues)
-    las[SCALAR_FIELDS[5]][idx] = planarity
+    las[SCALAR_FIELDS[5]][idx] = planarity if not nan else float('NaN')
 
     # Sphericity
     sphericity: float = GeometricFeatures.sphericity(eigenvalues)
-    las[SCALAR_FIELDS[6]][idx] = sphericity
+    las[SCALAR_FIELDS[6]][idx] = sphericity if not nan else float('NaN')
 
     # PCA1
     PCA1: float = GeometricFeatures.PCA1(eigenvalues)
-    las[SCALAR_FIELDS[7]][idx] = PCA1
+    las[SCALAR_FIELDS[7]][idx] = PCA1 if not nan else float('NaN')
 
     # PCA2
     PCA2: float = GeometricFeatures.PCA2(eigenvalues)
-    las[SCALAR_FIELDS[8]][idx] = PCA2
+    las[SCALAR_FIELDS[8]][idx] = PCA2 if not nan else float('NaN')
 
     # Surface variation
     surfaceVariation: float = GeometricFeatures.surfaceVariation(eigenvalues)
-    las[SCALAR_FIELDS[9]][idx] = surfaceVariation
+    las[SCALAR_FIELDS[9]][idx] = surfaceVariation if not nan else float('NaN')
 
     # Verticality
     verticality: float = GeometricFeatures.verticality(eigenvectors)
-    las[SCALAR_FIELDS[10]][idx] = verticality
+    las[SCALAR_FIELDS[10]][idx] = verticality if not nan else float('NaN')
 
 def calculateFeatures(cloudPath: str, radius: float, bias: bool = False, percentageCallback=None) -> None:
     """
@@ -136,7 +135,7 @@ def calculateFeatures(cloudPath: str, radius: float, bias: bool = False, percent
     """
     # Load point cloud
     las = laspy.read(cloudPath)
-    addScalarFields(las, radius)
+    addScalarFields(las)
 
     numPoints: int = len(las.points)
 
@@ -149,11 +148,7 @@ def calculateFeatures(cloudPath: str, radius: float, bias: bool = False, percent
     for p in pointcloud:
 
         # Eigenvalues and eigenvectors of the covariance matrix of the neighborhood of p
-        try:
-            eigenvalues, eigenvectors = eigen(p, T, pointcloud, radius, bias)
-        except RuntimeError:
-            print("Couldn't compute covariance matrix in neighborhoods smaller than 3 points. Consider a bigger radius")
-            continue
+        eigenvalues, eigenvectors = eigen(p, T, pointcloud, radius, bias)
 
         # Compute geometric features
         computeFeatures(las, eigenvalues, eigenvectors, pointIndex)

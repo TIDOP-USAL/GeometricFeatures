@@ -9,13 +9,6 @@ from numpy import log as ln
 import math
 import sys
 
-def sign(n: float) -> float:
-    """
-    :param n: number n
-    :return: returns the sign of n
-    """
-    return n / abs(n) if n != 0 else 0
-
 class GeometricFeatures:
     """
     Contains all the methods for calculating the geometric features
