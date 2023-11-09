@@ -10,6 +10,10 @@ import math
 import sys
 
 def sign(n: float) -> float:
+    """
+    :param n: number n
+    :return: returns the sign of n
+    """
     return n / abs(n) if n != 0 else 0
 
 class GeometricFeatures:
@@ -114,6 +118,5 @@ class GeometricFeatures:
         """
         z = [0, 0, 1]
         e3 = eigenvectors[2]
-
         return 1.0 - math.fabs(np.dot(z, e3))
 
