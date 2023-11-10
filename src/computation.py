@@ -13,9 +13,10 @@ import laspy
 from features import GeometricFeatures
 
 SCALAR_FIELDS: list[str] = ['Sum_of_eigenvalues', 'Omnivariance', 'Eigenentropy',
-                 'Anisotropy', 'Linearity', 'Planarity', 'Sphericity',
-                 'PCA1', 'PCA2', 'Surface_variation', 'Verticality'
-                 ]
+                            'Anisotropy', 'Linearity', 'Planarity', 'Sphericity',
+                            'PCA1', 'PCA2', 'Surface_variation', 'Verticality',
+                            'Eigenvalue1', 'Eigenvalue2', 'Eigenvalue3'
+                            ]
 
 MIN_NEIGHBORHOOD: int = 3
 
@@ -40,6 +41,7 @@ def getNeighborhoodData(neighborhood: np.array) -> np.array:
     Y: list[float] = []
     Z: list[float] = []
 
+    # Compute neighborhood matrix
     for neighbor in neighborhood:
         X.append(neighbor[0])
         Y.append(neighbor[1])
@@ -70,7 +72,6 @@ def eigen(point: list[float], kdtree: KDTree, pointcloud: np.array, radius: floa
 
     # Return eigenvalues and eigenvectors
     return LA.eig(covarianceMatrix)
-
 def computeFeatures(las: laspy.LasData, eigenvalues: np.array, eigenvectors: np.array, idx: int) -> None:
     """
     :param las: LAS file
@@ -79,51 +80,24 @@ def computeFeatures(las: laspy.LasData, eigenvalues: np.array, eigenvectors: np.
     :param idx: Scalarfield index
     :return:
     """
-    nan: bool = eigenvalues is None or eigenvectors is None
+    las[SCALAR_FIELDS[0]][idx] = GeometricFeatures.sumOfEigenValues(eigenvalues)
+    las[SCALAR_FIELDS[1]][idx] = GeometricFeatures.omnivariance(eigenvalues)
+    las[SCALAR_FIELDS[2]][idx] = GeometricFeatures.eigenentropy(eigenvalues)
 
-    # Sum of eigenvalues
-    sumofeigenvalues: float = GeometricFeatures.sumOfEigenValues(eigenvalues)
-    las[SCALAR_FIELDS[0]][idx] = sumofeigenvalues if not nan else float('NaN')
+    las[SCALAR_FIELDS[3]][idx] = GeometricFeatures.anisotropy(eigenvalues)
+    las[SCALAR_FIELDS[4]][idx] = GeometricFeatures.linearity(eigenvalues)
+    las[SCALAR_FIELDS[5]][idx] = GeometricFeatures.planarity(eigenvalues)
+    las[SCALAR_FIELDS[6]][idx] = GeometricFeatures.sphericity(eigenvalues)
 
-    # Omnivariance
-    omnivariance: float = GeometricFeatures.omnivariance(eigenvalues)
-    las[SCALAR_FIELDS[1]][idx] = omnivariance if not nan else float('NaN')
+    las[SCALAR_FIELDS[7]][idx] = GeometricFeatures.PCA1(eigenvalues)
+    las[SCALAR_FIELDS[8]][idx] = GeometricFeatures.PCA2(eigenvalues)
+    las[SCALAR_FIELDS[9]][idx] = GeometricFeatures.surfaceVariation(eigenvalues)
 
-    # Eigenentropy
-    eigenentropy: float = GeometricFeatures.eigenentropy(eigenvalues)
-    las[SCALAR_FIELDS[2]][idx] = eigenentropy if not nan else float('NaN')
+    las[SCALAR_FIELDS[10]][idx] = GeometricFeatures.verticality(eigenvectors)
 
-    # Anisotropy
-    anisotropy: float = GeometricFeatures.anisotropy(eigenvalues)
-    las[SCALAR_FIELDS[3]][idx] = anisotropy if not nan else float('NaN')
-
-    # Linearity
-    linearity: float = GeometricFeatures.linearity(eigenvalues)
-    las[SCALAR_FIELDS[4]][idx] = linearity if not nan else float('NaN')
-
-    # Planarity
-    planarity: float = GeometricFeatures.planarity(eigenvalues)
-    las[SCALAR_FIELDS[5]][idx] = planarity if not nan else float('NaN')
-
-    # Sphericity
-    sphericity: float = GeometricFeatures.sphericity(eigenvalues)
-    las[SCALAR_FIELDS[6]][idx] = sphericity if not nan else float('NaN')
-
-    # PCA1
-    PCA1: float = GeometricFeatures.PCA1(eigenvalues)
-    las[SCALAR_FIELDS[7]][idx] = PCA1 if not nan else float('NaN')
-
-    # PCA2
-    PCA2: float = GeometricFeatures.PCA2(eigenvalues)
-    las[SCALAR_FIELDS[8]][idx] = PCA2 if not nan else float('NaN')
-
-    # Surface variation
-    surfaceVariation: float = GeometricFeatures.surfaceVariation(eigenvalues)
-    las[SCALAR_FIELDS[9]][idx] = surfaceVariation if not nan else float('NaN')
-
-    # Verticality
-    verticality: float = GeometricFeatures.verticality(eigenvectors)
-    las[SCALAR_FIELDS[10]][idx] = verticality if not nan else float('NaN')
+    las[SCALAR_FIELDS[11]][idx] = GeometricFeatures.eigenvalue1(eigenvalues)
+    las[SCALAR_FIELDS[12]][idx] = GeometricFeatures.eigenvalue2(eigenvalues)
+    las[SCALAR_FIELDS[13]][idx] = GeometricFeatures.eigenvalue3(eigenvalues)
 
 def calculateFeatures(cloudPath: str, radius: float, bias: bool = False, percentageCallback=None) -> None:
     """

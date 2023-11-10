@@ -21,6 +21,9 @@ class GeometricFeatures:
         :param eigenvalues: Eigenvalues of the covariance matrix of a neighborhood
         :return: $\sum_{i} \lambda_{i}$
         """
+        if eigenvalues is None:
+            return float('NaN')
+
         return eigenvalues[0] + eigenvalues[1] + eigenvalues[2]
 
     @staticmethod
@@ -29,7 +32,14 @@ class GeometricFeatures:
         :param eigenvalues: Eigenvalues of the covariance matrix of a neighborhood
         :return: $\left( \prod_{i} \lambda_{i} \right)^\frac{1}{3}$
         """
-        return math.pow(eigenvalues[0] * eigenvalues[1] * eigenvalues[2], 1.0 / 3.0)
+        if eigenvalues is None:
+            return float('NaN')
+
+        product: float = eigenvalues[0] * eigenvalues[1] * eigenvalues[2]
+        if product < 0:
+            return float('NaN')
+
+        return math.pow(product, 1.0 / 3.0)
 
     @staticmethod
     def eigenentropy(eigenvalues: np.array) -> float:
@@ -37,6 +47,9 @@ class GeometricFeatures:
         :param eigenvalues: Eigenvalues of the covariance matrix of a neighborhood
         :return: $-\sum_{i}\lambda_{i}\ln\left( \lambda_{i} \right )$
         """
+        if eigenvalues is None:
+            return float('NaN')
+
         sum: float = 0
         for eigenvalue in eigenvalues:
             if eigenvalue <= 0:  # ln(x) = -inf, x <= 0. As we have -sum, -(-inf) = inf
@@ -50,6 +63,9 @@ class GeometricFeatures:
         :param eigenvalues: Eigenvalues of the covariance matrix of a neighborhood
         :return: $\frac{\lambda_{1} - \lambda_{3}}{\lambda_{1}}$
         """
+        if eigenvalues is None:
+            return float('NaN')
+
         return (eigenvalues[0] - eigenvalues[2]) / eigenvalues[0] if abs(eigenvalues[0]) > sys.float_info.epsilon else float('NaN')
 
     @staticmethod
@@ -58,6 +74,9 @@ class GeometricFeatures:
         :param eigenvalues: Eigenvalues of the covariance matrix of a neighborhood
         :return: $\frac{\lambda_{1} - \lambda_{2}}{\lambda_{1}}$
         """
+        if eigenvalues is None:
+            return float('NaN')
+
         return (eigenvalues[0] - eigenvalues[1]) / eigenvalues[0] if abs(eigenvalues[0]) > sys.float_info.epsilon else float('NaN')
 
     @staticmethod
@@ -66,6 +85,9 @@ class GeometricFeatures:
         :param eigenvalues: Eigenvalues of the covariance matrix of a neighborhood
         :return: $\frac{\lambda_{2} - \lambda_{3}}{\lambda_{1}}$
         """
+        if eigenvalues is None:
+            return float('NaN')
+
         return (eigenvalues[1] - eigenvalues[2]) / eigenvalues[0] if abs(eigenvalues[0]) > sys.float_info.epsilon else float('NaN')
 
     @staticmethod
@@ -74,6 +96,9 @@ class GeometricFeatures:
         :param eigenvalues: Eigenvalues of the covariance matrix of a neighborhood
         :return: $\frac{\lambda_{3}}{\lambda_{1}}$
         """
+        if eigenvalues is None:
+            return float('NaN')
+
         return eigenvalues[2] / eigenvalues[0] if abs(eigenvalues[0]) > sys.float_info.epsilon else float('NaN')
 
     @staticmethod
@@ -82,6 +107,9 @@ class GeometricFeatures:
         :param eigenvalues: Eigenvalues of the covariance matrix of a neighborhood
         :return: $\lambda_{1}\left ( \sum _{i} \lambda_{i} \right )^{-1}$
         """
+        if eigenvalues is None:
+            return float('NaN')
+
         eigenvaluesSum = GeometricFeatures.sumOfEigenValues(eigenvalues)
         return eigenvalues[0] / eigenvaluesSum if abs(eigenvaluesSum) > sys.float_info.epsilon else float('NaN')
 
@@ -91,6 +119,9 @@ class GeometricFeatures:
         :param eigenvalues: Eigenvalues of the covariance matrix of a neighborhood
         :return: $\lambda_{2}\left ( \sum _{i} \lambda_{i} \right )^{-1}$
         """
+        if eigenvalues is None:
+            return float('NaN')
+
         eigenvaluesSum = GeometricFeatures.sumOfEigenValues(eigenvalues)
         return eigenvalues[1] / eigenvaluesSum if abs(eigenvaluesSum) > sys.float_info.epsilon else float('NaN')
 
@@ -100,6 +131,9 @@ class GeometricFeatures:
         :param eigenvalues: Eigenvalues of the covariance matrix of a neighborhood
         :return: $\lambda_{3}\left ( \sum _{i} \lambda_{i} \right )^{-1}$
         """
+        if eigenvalues is None:
+            return float('NaN')
+
         eigenvaluesSum = GeometricFeatures.sumOfEigenValues(eigenvalues)
         return eigenvalues[2] / eigenvaluesSum if abs(eigenvaluesSum) > sys.float_info.epsilon else float('NaN')
 
@@ -109,7 +143,42 @@ class GeometricFeatures:
         :param eigenvectors: Eigenvectors associated to the eigenvalues of the covariance matrix of a neighborhood
         :return: $1 - \left | n_{z} \right |$
         """
+        if eigenvectors is None:
+            return float('NaN')
+
         z = [0, 0, 1]
         e3 = eigenvectors[2]
         return 1.0 - math.fabs(np.dot(z, e3))
 
+    @staticmethod
+    def eigenvalue1(eigenvalues: np.array) -> float:
+        """
+        :param eigenvalues: Eigenvalues of the covariance matrix of a neighborhood
+        :return: $\lambda_{1}$
+        """
+        if eigenvalues is None:
+            return float('NaN')
+
+        return eigenvalues[0]
+
+    @staticmethod
+    def eigenvalue2(eigenvalues: np.array) -> float:
+        """
+        :param eigenvalues: Eigenvalues of the covariance matrix of a neighborhood
+        :return: $\lambda_{2}$
+        """
+        if eigenvalues is None:
+            return float('NaN')
+
+        return eigenvalues[1]
+
+    @staticmethod
+    def eigenvalue3(eigenvalues: np.array) -> float:
+        """
+        :param eigenvalues: Eigenvalues of the covariance matrix of a neighborhood
+        :return: $\lambda_{3}$
+        """
+        if eigenvalues is None:
+            return float('NaN')
+
+        return eigenvalues[2]
