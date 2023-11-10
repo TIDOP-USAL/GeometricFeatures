@@ -72,6 +72,7 @@ def eigen(point: list[float], kdtree: KDTree, pointcloud: np.array, radius: floa
 
     # Return eigenvalues and eigenvectors
     return LA.eig(covarianceMatrix)
+
 def computeFeatures(las: laspy.LasData, eigenvalues: np.array, eigenvectors: np.array, idx: int) -> None:
     """
     :param las: LAS file
