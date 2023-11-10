@@ -33,25 +33,25 @@ Thus, the following geometric features are defined:
 
 ```math
 \text{Sum of eigenvalues}: \sum_{i} \lambda_{i}
-
+\newline
 \text{Omnivariance:} \left( \prod_{i} \lambda_{i} \right)^\frac{1}{3}
-
+\newline
 \text{Eigenentropy:} -\sum_{i}\lambda_{i}\ln\left( \lambda_{i} \right )
-
+\newline
 \text{Anisotropy:} \frac{\lambda_{1} - \lambda_{3}}{\lambda_{1}}
-
+\newline
 \text{Linearity:} \frac{\lambda_{1} - \lambda_{2}}{\lambda_{1}}
-
+\newline
 \text{Planarity:} \frac{\lambda_{2} - \lambda_{3}}{\lambda_{1}}
-
+\newline
 \text{Sphericity:} \frac{\lambda_{3}}{\lambda_{1}}
-
+\newline
 \text{PCA1:} \lambda_{1}\left ( \sum _{i} \lambda_{i} \right )^{-1}
-
+\newline
 \text{PCA2:} \lambda_{2}\left ( \sum _{i} \lambda_{i} \right )^{-1}
-
+\newline
 \text{Surface variation:} \lambda_{3}\left ( \sum _{i} \lambda_{i} \right )^{-1}
-
+\newline
 \text{Verticality:} 1 - \left | n_{z} \right |
 ```
 
