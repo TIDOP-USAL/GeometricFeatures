@@ -31,17 +31,19 @@ In order to extract the eigenvalues, we need to find the roots of the characteri
 
 Thus, the following geometric features are defined:
 
-* Sum of eigenvalues: $\sum_{i} \lambda_{i}$
-* Omnivariance: $\left( \prod_{i} \lambda_{i} \right)^\frac{1}{3}$
-* Eigenentropy: $-\sum_{i}\lambda_{i}\ln\left( \lambda_{i} \right )$
-* Anisotropy: $\frac{\lambda_{1} - \lambda_{3}}{\lambda_{1}}$
-* Linearity: $\frac{\lambda_{1} - \lambda_{2}}{\lambda_{1}}$
-* Planarity: $\frac{\lambda_{2} - \lambda_{3}}{\lambda_{1}}$
-* Sphericity: $\frac{\lambda_{3}}{\lambda_{1}}$
-* PCA1: $\lambda_{1}\left ( \sum _{i} \lambda_{i} \right )^{-1}$
-* PCA2: $\lambda_{2}\left ( \sum _{i} \lambda_{i} \right )^{-1}$
-* Surface variation: $\lambda_{3}\left ( \sum _{i} \lambda_{i} \right )^{-1}$
-* Verticality: $1 - \left | n_{z} \right |$
+```math
+Sum of eigenvalues: $\sum_{i} \lambda_{i}$
+Omnivariance: $\left( \prod_{i} \lambda_{i} \right)^\frac{1}{3}$
+Eigenentropy: $-\sum_{i}\lambda_{i}\ln\left( \lambda_{i} \right )$
+Anisotropy: $\frac{\lambda_{1} - \lambda_{3}}{\lambda_{1}}$
+Linearity: $\frac{\lambda_{1} - \lambda_{2}}{\lambda_{1}}$
+Planarity: $\frac{\lambda_{2} - \lambda_{3}}{\lambda_{1}}$
+Sphericity: $\frac{\lambda_{3}}{\lambda_{1}}$
+PCA1: $\lambda_{1}\left ( \sum _{i} \lambda_{i} \right )^{-1}$
+PCA2: $\lambda_{2}\left ( \sum _{i} \lambda_{i} \right )^{-1}$
+Surface variation: $\lambda_{3}\left ( \sum _{i} \lambda_{i} \right )^{-1}$
+Verticality: $1 - \left | n_{z} \right |$
+```
 
 ## Visualization
 
@@ -56,7 +58,3 @@ Thus, the following geometric features are defined:
 **Eigenentropy**
 
 ![](img/eigenentropy.png)
-
-**PCA2**
-
-![](img/pca2.png)
