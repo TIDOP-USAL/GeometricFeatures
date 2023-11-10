@@ -9,6 +9,7 @@ from numpy import log as ln
 import math
 import sys
 
+
 class GeometricFeatures:
     """
     Contains all the methods for calculating the geometric features
@@ -50,10 +51,11 @@ class GeometricFeatures:
         if eigenvalues is None:
             return float('NaN')
 
+        # If lambda = 0, limit indetermination 0 * \inf
         sum: float = 0
         for eigenvalue in eigenvalues:
-            if eigenvalue <= 0:  # ln(x) = -inf, x <= 0. As we have -sum, -(-inf) = inf
-                return float('inf')
+            if eigenvalue <= 0:
+                return float('NaN')
             sum += eigenvalue * ln(eigenvalue)
         return -sum
 
