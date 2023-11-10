@@ -125,6 +125,12 @@ def calculateFeatures(cloudPath: str, radius: float, bias: bool = False, percent
         # Eigenvalues and eigenvectors of the covariance matrix of the neighborhood of p
         eigenvalues, eigenvectors = eigen(p, T, pointcloud, radius, bias)
 
+        # Order eigenvalues and associated eigenvectors
+        if eigenvalues is not None and eigenvectors is not None:
+            idx = eigenvalues.argsort()[::-1]
+            eigenvalues = eigenvalues[idx]
+            eigenvectors = eigenvectors[:, idx]
+
         # Compute geometric features
         computeFeatures(las, eigenvalues, eigenvectors, pointIndex)
         pointIndex += 1
