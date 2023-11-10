@@ -35,34 +35,34 @@ Thus, the following geometric features are defined:
 \text{Sum of eigenvalues}: \sum_{i} \lambda_{i}
 ```
 ```math
-\text{Omnivariance:} \left( \prod_{i} \lambda_{i} \right)^\frac{1}{3}
+\text{Omnivariance}: \left( \prod_{i} \lambda_{i} \right)^\frac{1}{3}
 ```
 ```math
-\text{Eigenentropy:} -\sum_{i}\lambda_{i}\ln\left( \lambda_{i} \right )
+\text{Eigenentropy}: -\sum_{i}\lambda_{i}\ln\left( \lambda_{i} \right )
 ```
 ```math
-\text{Anisotropy:} \frac{\lambda_{1} - \lambda_{3}}{\lambda_{1}}
+\text{Anisotropy}: \frac{\lambda_{1} - \lambda_{3}}{\lambda_{1}}
 ```
 ```math
-\text{Linearity:} \frac{\lambda_{1} - \lambda_{2}}{\lambda_{1}}
+\text{Linearity}: \frac{\lambda_{1} - \lambda_{2}}{\lambda_{1}}
 ```
 ```math
-\text{Planarity:} \frac{\lambda_{2} - \lambda_{3}}{\lambda_{1}}
+\text{Planarity}: \frac{\lambda_{2} - \lambda_{3}}{\lambda_{1}}
 ```
 ```math
-\text{Sphericity:} \frac{\lambda_{3}}{\lambda_{1}}
+\text{Sphericity}: \frac{\lambda_{3}}{\lambda_{1}}
 ```
 ```math
-\text{PCA1:} \lambda_{1}\left ( \sum _{i} \lambda_{i} \right )^{-1}
+\text{PCA1}: \lambda_{1}\left ( \sum _{i} \lambda_{i} \right )^{-1}
 ```
 ```math
-\text{PCA2:} \lambda_{2}\left ( \sum _{i} \lambda_{i} \right )^{-1}
+\text{PCA2}: \lambda_{2}\left ( \sum _{i} \lambda_{i} \right )^{-1}
 ```
 ```math
-\text{Surface variation:} \lambda_{3}\left ( \sum _{i} \lambda_{i} \right )^{-1}
+\text{Surface variation}: \lambda_{3}\left ( \sum _{i} \lambda_{i} \right )^{-1}
 ```
 ```math
-\text{Verticality:} 1 - \left | n_{z} \right |
+\text{Verticality}: 1 - \left | n_{z} \right |
 ```
 
 ## Visualization
