@@ -5,12 +5,8 @@ Alberto Morcillo Sanz - TIDOP
 
 import computation
 
-previousPercentage: int = -1
 def showPercentage(percentage: int) -> None:
-    global previousPercentage
-    if percentage != previousPercentage:
-        print(str(percentage) + '%')
-        previousPercentage = percentage
+    print(str(percentage) + '%')
 
 if __name__ == "__main__":
 

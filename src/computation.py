@@ -119,6 +119,7 @@ def calculateFeatures(cloudPath: str, radius: float, bias: bool = False, percent
     T = KDTree(pointcloud)
 
     # Calculate the geometric features of each point in a neighborhood of radius r
+    previousPercentage: int = -1
     pointIndex: int = 0
     for p in pointcloud:
 
@@ -138,7 +139,9 @@ def calculateFeatures(cloudPath: str, radius: float, bias: bool = False, percent
         # Compute optional percentage
         if percentageCallback is not None:
             percentage = max(int(100 * float(pointIndex) / numPoints) - 1, 0)
-            percentageCallback(percentage)
+            if percentage != previousPercentage:
+                percentageCallback(percentage)
+                previousPercentage = percentage
 
     # Save point cloud
     outputPath: str = cloudPath.split('.')[0] + '-features.las'
